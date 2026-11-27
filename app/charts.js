@@ -1,6 +1,6 @@
 import { format } from './data.js';
 
-export function line({ points, ticks, unit, label, peak, peakLabel, startpoint, endpoint, approximate = false }) {
+export function line({ points, ticks, unit, label, endpoint, comparison, pins = [], yearStep }) {
   function draw(compact) {
     const width = compact ? 350 : 750;
     const height = compact ? 236 : 244;
@@ -14,27 +14,61 @@ export function line({ points, ticks, unit, label, peak, peakLabel, startpoint, 
     const y = value => bottom - (value - ticks[0]) / (ticks.at(-1) - ticks[0]) * (bottom - top);
     const coords = points.map(([year,value]) => [x(year),y(value)]);
     const path = coords.map(([a,b],i) => (i ? 'L' : 'M') + a + ' ' + b).join(' ');
-    const [startX,startY] = coords[0];
     const [endX,endY] = coords.at(-1);
-    const skip = compact && points.length > 6 ? [1950,1990,2000,2015,2020] : [2015];
-    const peakX = peak ? x(peak[0]) : 0;
-    const peakY = peak ? y(peak[1]) : 0;
+    const yearInterval = yearStep && (compact ? yearStep * 2 : yearStep);
+    const yearLabels = points.filter(([year]) => year === first || year === last ||
+      (yearInterval ? year % yearInterval === 0 && year - first >= yearInterval / 2 && last - year >= yearInterval / 2 : year !== 2015));
+    const comparisonPath = comparison?.map(([year, value], i) =>
+      `${i ? 'L' : 'M'}${x(year)} ${y(value)}`).join(' ');
     return `<svg class="line ${compact ? 'compact' : 'wide'}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${label}">
       <text x="0" y="17" class="axis">単位：${unit}</text>
       ${ticks.map(value => `<line class="grid" x1="${left}" x2="${right}" y1="${y(value)}" y2="${y(value)}"/>
         <text class="axis" x="${left - 8}" y="${y(value) + 4}" text-anchor="end">${format(value)}</text>`).join('')}
-      ${points.filter(([year]) => !skip.includes(year) || year === first || year === last).map(([year]) =>
+      ${yearLabels.map(([year]) =>
         `<line class="grid vertical" x1="${x(year)}" x2="${x(year)}" y1="${top}" y2="${bottom}"/>
         <text class="axis" x="${x(year)}" y="${bottom + 20}" text-anchor="middle">${year}</text>`).join('')}
-      <path class="chart-fill" d="${path} L${endX} ${bottom} L${left} ${bottom} Z"/>
-      <path class="chart-stroke ${approximate ? 'dashed' : ''}" d="${path}"/>
+      ${comparisonPath
+        ? `<path class="chart-stroke chart-comparison" d="${comparisonPath}"/>`
+        : `<path class="chart-fill" d="${path} L${endX} ${bottom} L${left} ${bottom} Z"/>`}
+      <path class="chart-stroke" d="${path}"/>
       ${coords.slice(0,-1).map(([a,b]) => `<circle class="dot" cx="${a}" cy="${b}" r="3"/>`).join('')}
-      ${peak ? `<path class="peak-guide" d="M${peakX} ${peakY} V31 H${peakX-8}"/>
-        <circle class="peak" cx="${peakX}" cy="${peakY}" r="4"/>
-        <text class="peak-label" x="${peakX-11}" y="35" text-anchor="end">${peakLabel}</text>` : ''}
-      ${startpoint ? `<text class="start-label" x="${startX+7}" y="${startY-12}">${startpoint}</text>` : ''}
+      ${pins.map(([year, value, text, align], index) => {
+        const labelY = compact && index === 0 ? 40 : 25;
+        return `<path class="peak-guide" d="M${x(year)} ${y(value)} V${labelY + 4}"/>
+          <circle class="peak" cx="${x(year)}" cy="${y(value)}" r="4"/>
+          <text class="peak-label" x="${x(year)}" y="${labelY}" text-anchor="${align}">${text}</text>`;
+      }).join('')}
       <circle class="end-dot" cx="${endX}" cy="${endY}" r="4.6"/>
-      <text class="end-label" x="${endX - 7}" y="${endY + (peak ? 22 : -12)}" text-anchor="end">${endpoint}</text>
+      ${endpoint ? `<text class="end-label" x="${endX - 7}" y="${endY - 12}" text-anchor="end">${endpoint}</text>` : ''}
+    </svg>`;
+  }
+  return draw(false) + draw(true);
+}
+
+export function ageComposition(rows, latestAgeShares) {
+  function draw(compact) {
+    const width = compact ? 350 : 750;
+    const left = 40;
+    const right = width - 22;
+    const top = 14;
+    const bottom = 202;
+    const x = index => left + index / (rows.length - 1) * (right - left);
+    const y = share => bottom - share * (bottom - top);
+    const bands = rows.map(([, ...ages]) => {
+      const total = ages.reduce((sum, count) => sum + count, 0);
+      return [0, ages[0] / total, (ages[0] + ages[1]) / total, 1];
+    });
+    return `<svg class="line ${compact ? 'compact' : 'wide'}" viewBox="0 0 ${width} 234" role="img"
+      aria-label="${rows[0][0]}年から${rows.at(-1)[0]}年の年齢3区分別人口割合。${rows.at(-1)[0]}年は${latestAgeShares}。">
+      ${['young', 'working', 'older'].map((band, index) => {
+        const upper = bands.map((shares, i) => `${x(i)},${y(shares[index + 1])}`);
+        const lower = bands.map((shares, i) => `${x(i)},${y(shares[index])}`).reverse();
+        return `<polygon class="age-${band}" points="${upper.concat(lower).join(' ')}"/>`;
+      }).join('')}
+      ${[0, 25, 50, 75, 100].map(tick => `<line class="grid age-grid" x1="${left}" x2="${right}" y1="${y(tick / 100)}" y2="${y(tick / 100)}"/>
+        <text class="axis" x="${left - 7}" y="${y(tick / 100) + 4}" text-anchor="end">${tick}%</text>`).join('')}
+      ${rows.map(([year], index) => index === rows.length - 1 || index % (compact ? 4 : 2) === 0
+        ? `<text class="axis" x="${x(index)}" y="${bottom + 20}" text-anchor="middle">${year}</text>` : '').join('')}
     </svg>`;
   }
   return draw(false) + draw(true);

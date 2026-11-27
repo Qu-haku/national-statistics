@@ -9,11 +9,11 @@ export const sources = {
   estimates: '総務省統計局「人口推計」',
   vital: '厚生労働省「人口動態統計」',
   gdp: '内閣府「国民経済計算」',
+  profits: '財務省「年次別法人企業統計調査（令和6年度）」',
   cpi: '総務省統計局「消費者物価指数」',
   labor: '総務省統計局「労働力調査」',
   jobs: '厚生労働省「一般職業紹介状況」',
   union: '日本労働組合総連合会「春季生活闘争 回答集計」',
-  profits: '厚生労働省「令和7年版 労働経済の分析」',
   budget: '財務省「一般会計当初予算」',
   estat: '政府統計の総合窓口「e-Stat」',
 };
@@ -35,12 +35,12 @@ export const figures = {
   deaths: record('population', '死亡数', '1,605,378', '人', '2024年', 'vital', '確定数・日本における日本人'),
   fertility: record('population', '合計特殊出生率', '1.15', '（比率）', '2024年', 'vital'),
   ibaraki: record('population', '茨城県の人口', '2,789,856', '人', '2025年', 'census'),
-  gdp: record('economy', '名目GDP', '約637', '兆円', '2024年（暦年）', 'gdp', '前年比 +3.3%・2020年基準・2024年度年次推計'),
+  gdp: record('economy', '名目GDP', '約637', '兆円', '2024年（暦年）', 'gdp', '前年比 +3.3%・2020年基準・2026年11月公表'),
   gdp2019: record('economy', '名目GDP', '約572', '兆円', '2019年（暦年）', 'gdp'),
   real: record('economy', '実質GDP成長率', '+0.1', '%', '2024年（暦年）', 'gdp'),
-  realFiscal: record('economy', '実質GDP成長率', '+0.5', '%', '2024年度', 'gdp'),
+  realFiscal: record('economy', '実質GDP成長率', '+0.7', '%', '2024年度', 'gdp'),
   consumption: record('economy', '名目個人消費', '336.6', '兆円', '2024年（暦年）', 'gdp', '前年比 +1.9%'),
-  profits: record('economy', '企業経常利益', '114.9', '兆円', '2024年', 'profits', '過去最高'),
+  profits: record('economy', '企業経常利益', '114.7', '兆円', '2024年度', 'profits', '金融・保険業を除く全産業。前年度比 +7.5%（公表時点で過去最高）'),
   inflation: record('prices', '消費者物価指数（前年比）', '+2.7', '%', '2024年平均', 'cpi'),
   total: record('prices', '総合', '+3.0', '%', '2024年度', 'cpi'),
   cereals: record('prices', '穀類', '+12.4', '%', '2024年度', 'cpi'),
@@ -57,12 +57,76 @@ export const figures = {
 };
 
 export const censusReferenceDate = '2025年10月1日';
-export const censusDate = censusReferenceDate+'現在 ／ 人口等基本集計 ／ 2026年9月29日公表';
+export const censusRelease = '2025年国勢調査 人口等基本集計（確報）';
+export const censusDate = censusReferenceDate+'現在 ／ '+censusRelease+' ／ 2026年9月29日公表';
+export const censusOutline = 'https://www.stat.go.jp/data/kokusei/2025/kekka/pdf/outline_01.pdf';
 export const populationBrief = '1億2,297';
-export const populationTrend = [[1920,5596],[1950,8320],[1970,10467],[1990,12361],
-  [2000,12693],[2010,12806],[2015,12709],[2020,12615],[2025,12297]];
-export const populationPeak = [2008,12808];
-export const gdpTrend = [[2019,572],[2024,637]];
+
+// 総務省統計局「2025年国勢調査 人口等基本集計」（2026年公表）表Ⅱ−1−1。
+// 1945年は人口調査。総人口は人単位。作図時に万人へ換算する。
+export const populationTrendTable = '表Ⅱ−1−1（年齢別人口表）';
+export const populationTrendScope = {
+  1940: '一部の外国人を除く',
+  1945: '人口調査（沖縄県を含まない）',
+};
+export const populationTrend = [
+  [1920,55963053], [1925,59736822], [1930,64450005], [1935,69254148],
+  [1940,73075071], [1945,71998104], [1950,84114574], [1955,90076594],
+  [1960,94301623], [1965,99209137], [1970,104665171], [1975,111939643],
+  [1980,117060396], [1985,121048923], [1990,123611167], [1995,125570246],
+  [2000,126925843], [2005,127767994], [2010,128057352], [2015,127094745],
+  [2020,126146099], [2025,122972528],
+];
+export const populationPeak = record('population', '総人口のピーク', '128,084', '千人', '2008年', 'estimates');
+
+// 同集計（2026年公表）表Ⅱ−1−1。年、0〜14歳、15〜64歳、65歳以上（人）。
+// 2015年以降は不詳補完値。残る年齢不詳は構成比の分母から除く。
+export const ageTrend = [
+  [1950,29786412,50168312,4155180], [1955,30122897,55166615,4786199],
+  [1960,28434159,60469355,5397980], [1965,25529230,67444242,6235614],
+  [1970,25152779,72119100,7393292], [1975,27220692,75807317,8865429],
+  [1980,27507078,78834599,10647356], [1985,26033218,82506016,12468343],
+  [1990,22486239,85903976,14894595], [1995,20013730,87164721,18260822],
+  [2000,18472499,86219631,22005152], [2005,17521234,84092414,25672005],
+  [2010,16803444,81031800,29245685], [2015,15950642,77354097,33790006],
+  [2020,15027298,75149323,35968868], [2025,13349001,73480843,36141613],
+];
+
+// 同集計（2026年公表）表Ⅰ−1−1・Ⅰ−5−1・Ⅳ−1−1・Ⅴ−1−1・Ⅴ−2−1。
+// 2025年実数、2020年実数、単位、構成比の分母。世帯類型・外国人は不詳補完値。
+export const populationBreakdown = [
+  ['総人口',122972528,126146099,'人',122972528],
+  ['男性人口',59772092,61349581,'人',122972528],
+  ['女性人口',63200436,64796518,'人',122972528],
+  ['外国人人口',3840039,2746514,'人',122972528],
+  ['総世帯数',57324619,55830154,'世帯',57324619],
+  ['一般世帯',57181619,55704949,'世帯',57324619],
+  ['単独世帯',23689024,21151042,'世帯',57181619],
+  ['核家族世帯',29897747,30242185,'世帯',57181619],
+  ['65歳以上単身世帯',8152593,7205292,'世帯',57181619],
+  ['一般世帯あたり人員',119837159 / 57181619,123162995 / 55704949,'人',null],
+];
+
+// 内閣府「国民経済計算」2026年7–9月期1次速報（2026年11月16日公表）
+// 時系列表1「実質暦年」「名目暦年」。2020年基準。単位は10億円。
+export const gdpRelease = '内閣府「国民経済計算」四半期別GDP速報（2026年11月16日公表、2020年基準）';
+export const gdpOutline = 'https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/2026/qe263/pdf/jikei_1.pdf';
+export const gdpTrend = [
+  [2015,548866.7,562904.4], [2016,555970.6,566872.8], [2017,565119.0,576075.7],
+  [2018,569153.5,580881.0], [2019,571838.0,579089.0], [2020,554074.4,554285.0],
+  [2021,573687.7,574163.7], [2022,584501.3,581290.7], [2023,616659.4,586498.2],
+  [2024,636893.3,586884.0],
+];
+
+// 同速報（2026年公表）時系列表1「名目暦年」。2024年、2023年（10億円）。
+export const gdpDemand = [
+  ['民間最終消費支出',336602.0,330179.7],
+  ['民間企業設備',119597.3,114424.8],
+  ['政府最終消費支出',127758.3,123789.5],
+  ['公的固定資本形成',31569.1,30964.3],
+  ['純輸出',-5139.2,-9095.5],
+];
+
 export const budgetBreakdown = [
   figures.social,
   ...[['国債費', '約28.2'], ['地方交付税交付金等', '約18.9'], ['防衛関係費', '約8.7'],
@@ -96,29 +160,30 @@ export const sign = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n).toFi
 export const indicatorIndex = [
   ...Object.values(figures),
   ...budgetBreakdown.slice(1),
-  ...populationTrend.map(([year,value]) => record('population','総人口（長期推移）',format(value),'万人',year+'年','census')),
-  record('population','総人口のピーク','約'+format(populationPeak[1]),'万人',populationPeak[0]+'年','estimates'),
+  ...populationTrend.map(([year,value]) => record('population','総人口（長期推移）',format(value),'人',year+'年','census',
+    [populationTrendTable, populationTrendScope[year]].filter(Boolean).join('。'))),
+  populationPeak,
   ...cpiTrend.map(([year,value,change]) => record('prices','消費者物価指数',value.toFixed(1),'（指数）',year+'年平均','cpi',
     cpiBase + (change === null ? '' : ' ／ 前年比 '+sign(change)+'%'))),
   ...prefectures.map(([name,value]) => record('population',name+'の人口',format(value),'人',prefectureYear,'census')),
 ];
 
 export const topics = [
-  ['/population', '人口', '2025年国勢調査の確定値', populationBrief+'万人。人口減少と世帯増加が同時に進む。', '2025年 ／ '+sources.census],
+  ['/population', '人口', censusRelease, populationBrief+'万人。人口減少と世帯増加が同時に進む。', '2025年 ／ '+sources.census],
   ['/economy', '経済', '名目GDPが600兆円を超える', figures.gdp.value+'兆円。家計の消費と実質成長率も読む。', '2024年 ／ '+sources.gdp],
   ['/prices', '物価', '物価は3年連続で2%超の上昇', '総合指数は'+cpiTrend.at(-1)[1].toFixed(1)+'。品目による動きの違いを見る。', '2024年 ／ '+sources.cpi],
 ];
 
 export const sourcePages = [
   ['census','https://www.stat.go.jp/data/kokusei/','人口・世帯・都道府県人口'],
-  ['census','https://www.pref.miyazaki.lg.jp/documents/111799/111799_20261009170022-1.pdf','年齢3区分別人口（2025年・表2−2）'],
+  ['census',censusOutline,'2025年国勢調査の人口・年齢・世帯（2026年公表）'],
   ['estimates','https://www.stat.go.jp/data/jinsui/','国勢調査の間の人口推移'],
   ['cpi','https://www.stat.go.jp/data/cpi/','総合指数・品目別指数'],
   ['labor','https://www.stat.go.jp/data/roudou/','就業・失業の状況'],
-  ['gdp','https://www.esri.cao.go.jp/jp/sna/menu.html','国内総生産と需要項目'],
+  ['gdp',gdpOutline,'名目・実質GDPと需要項目（2026年11月公表）'],
+  ['profits','https://www.mof.go.jp/pri/reference/ssc/results/r6.pdf','企業経常利益（2024年度、金融・保険業を除く全産業）'],
   ['vital','https://www.mhlw.go.jp/toukei/list/81-1.html','出生・死亡・出生率'],
   ['jobs','https://www.mhlw.go.jp/stf/newpage_57261.html','公共職業安定所の求人・求職'],
-  ['profits','https://www.mhlw.go.jp/stf/wp/hakusyo/roudou/25/25-1.html','賃金・労働経済の分析'],
   ['union','https://www.jtuc-rengo.or.jp/activity/roudou/shuntou/','賃上げの回答集計'],
   ['budget','https://www.mof.go.jp/policy/budget/budger_workflow/budget/fy2025/0003.pdf','一般会計予算'],
   ['estat','https://www.e-stat.go.jp/','各府省の統計表を横断検索'],

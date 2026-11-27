@@ -63,19 +63,16 @@ td .unit, .prose .unit { font-size: .8em; }
 .legend { color: var(--slate); display: flex; flex-wrap: wrap; font-size: 11px; gap: 8px 18px; margin: 4px 0; }
 .legend span::before { content: ""; width: 12px; height: 3px; background: var(--ink); display: inline-block; vertical-align: middle; margin-right: 6px; }
 .legend .legend-accent::before { background: var(--red); }
-.legend .legend-peak::before { background: var(--gold); width: 7px; height: 7px; border-radius: 50%; }
 .line { display: block; width: 100%; height: auto; overflow: visible; }
 .compact { display: none; }
 .grid { stroke: var(--rule); stroke-width: 1; }
 .vertical { stroke-dasharray: 2 4; }
-.axis, .peak-label, .end-label, .start-label { font-family: var(--sans); font-size: 11px; fill: var(--slate); }
+.axis, .peak-label, .end-label { font-family: var(--sans); font-size: 11px; fill: var(--slate); }
 .chart-fill { fill: color-mix(in oklch, var(--ink) 9%, transparent); }
 .chart-stroke { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
-.dashed { stroke-dasharray: 6 5; }
 .dot { stroke: var(--ink); stroke-width: 1.6; fill: var(--paper); }
 .end-dot { fill: var(--red); stroke: var(--paper); stroke-width: 1.5; }
 .end-label { fill: var(--red); font-weight: 800; font-size: 14px; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
-.start-label { fill: var(--ink); font-weight: 800; font-size: 13px; }
 .peak { fill: var(--gold); stroke: var(--paper); stroke-width: 1.5; }
 .peak-guide { fill: none; stroke: var(--slate); stroke-width: 1; stroke-dasharray: 2 2; }
 .peak-label { fill: var(--ink); font-weight: 700; }
@@ -119,6 +116,7 @@ input, select { border: 1px solid var(--rule); padding: 8px 12px; background: va
 .donut { width: 155px; display: block; margin: 0 auto 8px; }
 .donut-base, .donut-value { fill: none; stroke-width: 17; }
 .donut-base { stroke: var(--gold); }
+.legend .legend-fiscal-other::before { background: var(--gold); }
 .donut-value { stroke: var(--ink); }
 .donut-label { fill: var(--slate); font-size: 11px; font-weight: 700; }
 .donut-number { fill: var(--ink); font: 800 29px var(--serif); }
@@ -180,3 +178,11 @@ input, select { border: 1px solid var(--rule); padding: 8px 12px; background: va
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
 }
+
+.chart-stroke.chart-comparison { stroke: var(--red); stroke-width: 2; }
+.age-young, .legend .legend-young::before { fill: #a5adbb; background: #a5adbb; }
+.age-working { fill: var(--ink); }
+.age-older { fill: var(--red); }
+.age-grid { stroke: var(--paper); opacity: .55; }
+.detail-table th, .detail-table td { padding-inline: 5px; }
+.detail-table td { white-space: nowrap; }
