@@ -24,22 +24,27 @@ const table = (headers, rows, cls='') => `<table class="${cls}"><thead><tr>${hea
 
 export function home() {
   const brief = [f.population, populationBrief+'<span class="unit">万人</span>'];
+  const topicSummaries = [
+    '人口減少と世帯増加が同時に進む。',
+    '掲載した需要項目では、民間最終消費支出が最も大きい。',
+    topics[2][3],
+  ];
   const descriptions = ['国勢調査と人口動態','国内総生産と家計消費','消費者物価と品目別動向','雇用・求人・賃金','国の一般会計予算','指標検索と都道府県比較','公表資料と統計の読み方'];
   return `${heading(0,'日本のいま','人口、経済、暮らし。公的統計で、日本の現在地を読む。','人口の基準日<br><strong>'+censusReferenceDate+'</strong><br>'+sources.census)}
     ${strip([ {...brief[0],note:''}, brief[1]], {...f.gdp,note:''}, f.inflation, f.unemployment)}
     <div class="editorial-grid">
       <section class="chart-panel">
-        ${section('図 1','人口の長期推移','1920—2025年')}
+        ${section('図 1','人口の長期推移','1920〜2025年')}
         ${legend('総人口（5年ごと）')}
         ${line({points:populationTrend.map(([year, count]) => [year, count / 10000]),
           ticks:[0,3000,6000,9000,12000,15000],yearStep:10,unit:'万人',
-          label:'1920年から2025年の総人口、5年ごとに22時点。',endpoint:format(Math.round(populationTrend.at(-1)[1] / 10000))})}
+          label:'1920年から2025年の総人口、5年ごとに22時点。'})}
         ${note(`出典　総務省統計局「<a href="${censusOutline}">${censusRelease}</a>」（2026年公表、${populationTrendTable}）。1940年は${populationTrendScope[1940]}。1945年は${populationTrendScope[1945]}。人口推計では${populationPeak.year}がピーク（${populationPeak.value}${populationPeak.unit}）。`)}
       </section>
       <aside class="topics">
         ${section('記事','統計トピックス')}
-        ${topics.map(([href,tag,title,summary,ref]) => `<a href="#${href}" class="topic"><span class="tag">${tag}</span><span class="arrow" aria-hidden="true">↗</span>
-          <h3>${title}</h3><p>${summary}</p>${note(ref)}</a>`).join('')}
+        ${topics.map(([href,tag,title,,ref], i) => `<a href="#${href}" class="topic"><span class="tag">${tag}</span><span class="arrow" aria-hidden="true">↗</span>
+          <h3>${title}</h3><p>${topicSummaries[i]}</p>${note(i === 1 ? source(f.gdp) : i === 2 ? source(f.inflation) : ref)}</a>`).join('')}
       </aside>
     </div>
     <section class="block">${section('目次','分野から読む')}
@@ -59,18 +64,24 @@ export function population() {
   const latestAgeShares = [f.children, f.workingAge, f.older]
     .map(item => `${item.name.replace('人口割合', '')} ${item.value}${item.unit}`).join('、');
   return `${heading(1,'人口','人口の減少と高齢化を、国勢調査・人口動態統計からたどる。',censusDate)}
-    ${strip(f.population,f.households,f.older)}
+    <div class="chapter-findings">
+      <p><strong>総人口が減少</strong><span>${f.population.note}</span></p>
+      <p><strong>総世帯数が増加</strong><span>${f.households.note}</span></p>
+    </div>
     <div class="editorial-grid chapter-grid">
       <section class="chart-panel">
-        ${section('図 1','年齢構成','1950—2025年')}
-        <div class="legend"><span class="legend-young">0〜14歳</span><span>15〜64歳</span><span class="legend-accent">65歳以上</span></div>
+        ${section('図 1','年齢構成','1950〜2025年')}
+        <div class="age-key">
+          <span>構成比（${f.older.year}）</span>
+          <div class="legend">${[f.children, f.workingAge, f.older].map((item, i) =>
+            `<span class="${['legend-young', '', 'legend-accent'][i]}">${item.name.replace('人口割合', '')} <strong>${item.value}${item.unit}</strong></span>`).join('')}</div>
+        </div>
         ${ageComposition(ageTrend, latestAgeShares)}
-        <p class="annotation">${f.older.year}の構成比　${latestAgeShares}</p>
         ${note(`出典　総務省統計局「<a href="${censusOutline}">${censusRelease}</a>」（2026年公表、表Ⅱ−1−1）。2015年以降は不詳補完値。構成比の分母は年齢が判明している人口。`)}
       </section>
       <aside class="side-panel">
-        ${section('表 1','人口と世帯の内訳')}
-        ${table(['区分','2025年実数','構成比','2020年比（増減率）'],
+        ${section('表 1','人口と世帯の内訳','2025年')}
+        ${table(['区分','実数','構成比','2020年比（増減率）'],
           populationBreakdown.map(([label, current, previous, unit, denominator]) => [
             label,
             `${denominator === null ? current.toFixed(2) : format(current)}<span class="unit">${unit}</span>`,
@@ -81,12 +92,12 @@ export function population() {
         <p class="annotation">${onlyTokyo}</p>
       </aside>
     </div>
-    <section class="block">${section('表 2','出生と死亡','2024年 人口動態統計')}${strip(f.births,f.deaths,f.fertility)}</section>
+    <section class="block">${section('表 2','出生と死亡','2024年')}${strip(f.births,f.deaths,f.fertility)}</section>
     <section class="block">${section('表 3','都道府県人口ランキング','2020年国勢調査')}
       <div class="table-controls"><label>都道府県を検索 <input id="pref-search" type="search" placeholder="例：東京" aria-controls="pref-rows"></label></div>
       <table class="numeric"><thead><tr><th scope="col">順位</th><th scope="col">都道府県</th><th scope="col" id="population-sort" aria-sort="descending"><button type="button" id="sort-prefs">人口（人） <span>↓</span></button></th><th scope="col">調査年</th></tr></thead>
       <tbody id="pref-rows">${prefectureRows()}</tbody></table>
-      ${note(prefectureYear+' ／ '+sources.census+'。'+onlyTokyo+' '+f.ibaraki.year+'の茨城県は'+f.ibaraki.value+f.ibaraki.unit+'。')}
+      ${note(prefectureYear+' ／ '+sources.census+'。'+f.ibaraki.year+'の茨城県は'+f.ibaraki.value+f.ibaraki.unit+'。')}
     </section>`;
 }
 
@@ -100,7 +111,7 @@ export function economy() {
     ${strip(f.gdp,f.real,f.realFiscal)}
     <div class="editorial-grid chapter-grid">
       <section class="chart-panel">
-        ${section('図 1','名目GDPの節目',`${nominal[0][0]}—${lastYear}年`)}
+        ${section('図 1','名目・実質GDPの推移',`${nominal[0][0]}〜${lastYear}年（暦年）`)}
         ${legend('名目GDP','実質GDP（2020年連鎖価格）')}
         ${line({points:nominal,comparison:real,ticks:[500,550,600,650,700],yearStep:2,unit:'兆円',
           label:'暦年の名目GDPと実質GDPの推移。',
@@ -108,7 +119,7 @@ export function economy() {
         ${note(`出典　<a href="${gdpOutline}">${gdpRelease}</a> 時系列表1（暦年、支出側）。掲載期間は2015年以降。1994〜2014年は未掲載（2008年のリーマンショックを含む）。名目GDPは2023年に600兆円を超え、2024年も600兆円台。`)}
       </section>
       <aside class="side-panel">
-        ${section('表 1','GDP需要項目別の内訳','2024年暦年')}
+        ${section('表 1','GDP需要項目別の内訳',f.gdp.year)}
         ${table(['需要項目','実額（兆円）','GDP比','前年比'],gdpDemand.map(([label, current, previous]) => [
           label, (current / 1000).toFixed(2).replace('-', '−'),
           (current / nominalTotal * 100).toFixed(1).replace('-', '−') + '%',
@@ -126,19 +137,18 @@ export function economy() {
 export function prices() {
   const rows = [f.cereals,f.energy,f.total,f.core].map(item => ({label:item.name,value:Number(item.value),display:item.value+'%',accent:item===f.cereals}));
   return `${heading(3,'物価','家計が購入する商品やサービスの価格の動きを見る。',cpiBase)}
-    ${strip(f.inflation,f.total,f.core)}
     <div class="editorial-grid chapter-grid">
-      <section class="chart-panel">${section('図 1','消費者物価指数の推移','2020—2024年')}
+      <section class="chart-panel">${section('図 1','消費者物価指数の推移','2020〜2024年（年平均）')}
         ${legend('総合指数（年平均）')}
-        ${line({points:cpiTrend,ticks:[98,100,102,104,106,108,110],unit:cpiBase,label:'消費者物価指数は2020年の100.0から2024年の108.5へ。',endpoint:cpiTrend.at(-1)[1].toFixed(1)})}
+        ${line({points:cpiTrend,ticks:[98,100,102,104,106,108,110],unit:cpiBase,label:'消費者物価指数は2020年の100.0から2024年の108.5へ。'})}
         ${note('出典　'+sources.cpi+'（各年平均、'+cpiBase+'）')}
       </section>
-      <section class="side-panel">${section('図 2','品目別の上昇率','2024年度')}
+      <section class="side-panel">${section('図 2','品目別の上昇率',f.cereals.year)}
         ${legend('前年度比','穀類')}${bars(rows,[0,4,8,12,16],'%')}
         ${note(source(f.cereals)+'。コアは生鮮食品を除く総合。')}
       </section>
     </div>
-    <section class="block">${section('表 1','年平均の指数と前年比')}
+    <section class="block">${section('表 1','年平均の指数と前年比','2020〜2024年')}
       ${table(['年','指数（'+cpiBase+'）','前年比（%）'],cpiTrend.map(([year,index,change])=>[year+'年',index.toFixed(1),change===null?'掲載期間外':sign(change)]),'numeric')}
       ${note('出典　'+sources.cpi+'（各年平均）')}
     </section>`;
@@ -146,13 +156,18 @@ export function prices() {
 
 export function labor() {
   return `${heading(4,'労働','仕事を探す人、求人、賃上げの動きを見る。')}
-    ${strip(f.unemployment,f.jobs,f.wage)}
     <div class="editorial-grid chapter-grid">
-      <section class="chart-panel">${section('表 1','雇用指標と対象期間')}
-        ${table(['指標','対象期間','値','出典'],[f.unemployment,f.jobs,f.wage].map(item=>[item.name,item.year,value(item),sources[item.source]]),'labor-table')}
+      <section class="chart-panel">${section('表 1','雇用指標の比較')}
+        ${table(['指標','前年の値・対象期間','最新の値・対象期間','出典'],
+          [[f.unemployment2023, f.unemployment], [f.jobs2023, f.jobs], [null, f.wage]].map(([previous, item]) => [
+            item.name,
+            previous ? value(previous) + `<small>${previous.year}</small>` : '前年の集計値は掲載外',
+            value(item) + `<small>${item.year}</small>`,
+            sources[item.source],
+          ]), 'labor-table')}
       </section>
       <aside class="side-panel prose">${section('解説','推移を見るとき')}
-        <p>完全失業率は${f.unemployment2023.year}の${value(f.unemployment2023)}から${f.unemployment.year}の${value(f.unemployment)}へ。有効求人倍率は${f.jobs2023.year}の${value(f.jobs2023)}から${f.jobs.year}の${value(f.jobs)}へ低下しました。</p>
+        <p>完全失業率と有効求人倍率は、掲載した期間の比較でともに低下しました。</p>
         ${note(sources.labor+' ／ '+sources.jobs)}
         <p>失業率の年平均と求人倍率の年度平均では、集計期間がずれます。前年との推移は同じ指標・同じ期間で比べ、月ごとの動きを比べる場合は季節調整値を確認します。</p>
         <p>求人倍率が1倍を上回ると、公共職業安定所で扱う有効求人の数が有効求職者の数を上回ります。</p>
@@ -168,14 +183,16 @@ export function labor() {
 export function fiscal() {
   const share = Math.round(parseFloat(f.social.value.slice(1)) / budgetTrend.at(-1)[1] * 100);
   return `${heading(5,'財政','国の一般会計当初予算から、歳出の規模と使い道を見る。')}
-    ${strip(f.budget,f.budget2024,f.social)}
     <div class="editorial-grid chapter-grid">
       <section class="chart-panel">${section('図 1','一般会計歳出の規模','当初予算')}
         ${legend('歳出総額（概数）','2025年度')}
-        ${bars(budgetTrend.map(([year,value],i)=>({label:year+'年度',value,display:value+'兆円',accent:i===1})),[0,30,60,90,120],'兆円')}
-        ${note('出典　'+sources.budget+'（2024・2025年度）')}
+        ${bars(budgetTrend.map(([, amount], i) => {
+          const item = [f.budget2024, f.budget][i];
+          return {label:item.year, value:amount, display:item.value+item.unit, accent:i===1};
+        }),[0,30,60,90,120],'兆円')}
+        ${note('出典　'+sources.budget+'（2024・2025年度）')}${note(f.budget.year+'は'+f.budget.note+'。')}
       </section>
-      <section class="side-panel">${section('図 2','社会保障関係費の割合')}
+      <section class="side-panel">${section('図 2','社会保障関係費の割合',f.social.year)}
         ${donut(share,'約'+share+'%','社会保障関係費')}
         ${legend('社会保障関係費','その他の歳出','fiscal-other')}
         ${note(source(f.social)+'。歳出総額に占める概算。')}
@@ -195,9 +212,10 @@ export function fiscal() {
     </section>`;
 }
 
-export function indicatorRows(query = '') {
+export function indicatorRows(query = '', category = '') {
   const terms = query.normalize('NFKC').toLowerCase().trim().split(/\s+/);
   const found = indicatorIndex.filter(item => {
+    if (category && item.field !== category) return false;
     const field = sections.find(([route]) => route === '/'+item.field)?.[1];
     const text = [field,item.name,item.value,item.unit,item.year,sources[item.source],item.note].join(' ').normalize('NFKC').toLowerCase();
     return terms.every(term => text.includes(term));
@@ -206,7 +224,7 @@ export function indicatorRows(query = '') {
     count: found.length,
     html: found.length ? found.map(item => `<tr><th scope="row"><a href="#/${item.field}">${item.name}</a></th>
       <td>${value(item)}${item.note ? `<small>${item.note}</small>` : ''}</td><td>${item.year}</td><td>${sources[item.source]}</td></tr>`).join('')
-      : '<tr><td colspan="4" class="empty">一致する指標がありません。「人口」「物価」「2024年」などで検索してください。</td></tr>',
+      : '<tr><td colspan="4" class="empty">一致する指標がありません。分野または検索語を変更してください。</td></tr>',
   };
 }
 
@@ -220,14 +238,18 @@ export function explore() {
   const select = (id,label,current) => `<label>${label}<select id="${id}">${prefectures.map(([name],i) => `<option value="${i}" ${i===current?'selected':''}>${name}</option>`).join('')}</select></label>`;
   const results = indicatorRows();
   return `${heading(6,'探す・比べる','分野を横断して指標を探す。都道府県を二つ選び、人口を比べる。')}
-    <section class="block">${section('比較','都道府県の人口','2020年国勢調査')}
+    <section class="block">${section('図 1','都道府県の人口','2020年国勢調査')}
       <div class="table-controls">${select('pref-a','都道府県 A',0)}${select('pref-b','都道府県 B',2)}</div>
       <div id="comparison" aria-live="polite">${comparison(0,2)}</div>
     </section>
-    <section class="block">${section('検索','指標索引')}
+    <section class="block">${section('表 1','指標索引')}
       <div class="table-controls"><label>キーワード <input id="indicator-search" type="search" placeholder="例：人口 2025年" aria-controls="indicator-rows"></label>
+        <label>分野 <select id="indicator-field" aria-controls="indicator-rows">
+          <option value="">すべての分野</option>
+          ${sections.slice(1, 6).map(([route, name]) => `<option value="${route.slice(1)}">${name}</option>`).join('')}
+        </select></label>
         <output id="result-count" aria-live="polite">${results.count}件</output></div>
-      <table class="indicator-table"><thead><tr><th scope="col">指標</th><th scope="col">値</th><th scope="col">対象時点</th><th scope="col">出典</th></tr></thead>
+      <table class="indicator-table"><thead><tr><th scope="col">指標</th><th scope="col">値</th><th scope="col">対象時点・期間</th><th scope="col">出典</th></tr></thead>
         <tbody id="indicator-rows">${results.html}</tbody></table>
     </section>`;
 }
@@ -244,6 +266,6 @@ export function about() {
     </section>
     <section class="block prose">${section('案内','サイトの使い方')}
       <p>目次から分野を開き、図表の単位・対象時点・出典を確認します。都道府県の表は地名で絞り込み、人口列の見出しで並べ替えられます。</p>
-      <p><a href="#/explore">「探す・比べる」</a>では複数の語を空白で区切って検索でき、都道府県を選んで人口を比較できます。出典一覧のリンクから公表元の資料を確認できます。</p>
+      <p><a href="#/explore">「探す・比べる」</a>では分野で絞り込めます。複数の検索語は空白で区切ります。また、都道府県を選んで人口を比較できます。出典一覧のリンクから公表元の資料を確認できます。</p>
     </section>`;
 }

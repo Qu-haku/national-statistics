@@ -4,7 +4,7 @@
   --ink: oklch(0.30 0.055 258);
   --red: oklch(0.56 0.17 28);
   --gold: oklch(0.74 0.12 82);
-  --slate: oklch(0.55 0.01 250);
+  --slate: oklch(0.43 0.026 250);
   --rule: color-mix(in oklch, var(--ink) 21%, var(--paper));
   --wash: color-mix(in oklch, var(--ink) 4%, var(--paper));
   --serif: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif CJK JP", "IPA P明朝", "IPA Mincho", serif;
@@ -58,16 +58,16 @@ td .unit, .prose .unit { font-size: .8em; }
 .chart-panel, .topics, .side-panel, .block { min-width: 0; border-top: 2px solid var(--ink); }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--rule); padding: 8px 0; margin-bottom: 12px; }
 .section-head h2 { font: 800 clamp(19px, 2.1vw, 27px)/1.35 var(--serif); letter-spacing: .045em; }
-.section-head h2 span { color: var(--red); font: 700 10px/1 var(--sans); white-space: nowrap; letter-spacing: .13em; vertical-align: middle; margin-right: 10px; }
-.section-aside { color: var(--slate); font-size: 10px; font-weight: 700; white-space: nowrap; }
-.legend { color: var(--slate); display: flex; flex-wrap: wrap; font-size: 11px; gap: 8px 18px; margin: 4px 0; }
+.section-head h2 span { color: var(--red); font: 700 11px/1 var(--sans); white-space: nowrap; letter-spacing: .13em; vertical-align: middle; margin-right: 10px; }
+.section-aside { color: var(--slate); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.legend { color: var(--ink); display: flex; flex-wrap: wrap; font-size: 13px; font-weight: 700; gap: 8px 18px; margin: 4px 0; }
 .legend span::before { content: ""; width: 12px; height: 3px; background: var(--ink); display: inline-block; vertical-align: middle; margin-right: 6px; }
 .legend .legend-accent::before { background: var(--red); }
 .line { display: block; width: 100%; height: auto; overflow: visible; }
 .compact { display: none; }
 .grid { stroke: var(--rule); stroke-width: 1; }
 .vertical { stroke-dasharray: 2 4; }
-.axis, .peak-label, .end-label { font-family: var(--sans); font-size: 11px; fill: var(--slate); }
+.axis, .peak-label, .end-label { font-family: var(--sans); font-size: 15px; fill: var(--slate); }
 .chart-fill { fill: color-mix(in oklch, var(--ink) 9%, transparent); }
 .chart-stroke { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
 .dot { stroke: var(--ink); stroke-width: 1.6; fill: var(--paper); }
@@ -101,18 +101,17 @@ input, select { border: 1px solid var(--rule); padding: 8px 12px; background: va
 #sort-prefs { border: 0; background: none; padding: 2px 0; font-weight: 700; }
 #sort-prefs span { color: var(--red); }
 .empty { text-align: center !important; padding: 24px; color: var(--slate); }
-.bars { --bar-label: minmax(100px, 1fr); display: grid; gap: 0; margin: 10px 0 14px; }
+.bars { --bar-label: minmax(100px, 1fr); --bar-value: 110px; display: grid; gap: 0; margin: 10px 0 14px; }
 .bar-axis, .bar-row { display: grid; grid-template-columns: var(--bar-label) minmax(0, 3fr); align-items: center; gap: 12px; }
-.bar-axis { color: var(--slate); font-size: 10px; }
-.bar-axis > div { display: flex; justify-content: space-between; margin-right: 90px; }
+.bar-axis { color: var(--slate); font-size: 12px; }
+.bar-axis > div { display: flex; justify-content: space-between; margin-right: calc(var(--bar-value) + 8px); }
 .bar-row { border-bottom: 1px solid var(--rule); min-height: 48px; font-weight: 700; font-size: 13px; }
-.bar-track { display: grid; grid-template-columns: minmax(0, 1fr) 82px; gap: 8px; align-items: center; }
+.bar-track { display: grid; grid-template-columns: minmax(0, 1fr) var(--bar-value); gap: 8px; align-items: center; }
 .bar-track svg { width: 100%; height: 26px; overflow: visible; }
 .bar-track strong { text-align: right; white-space: nowrap; }
 .bar-ink { fill: var(--ink); }
 .bar-accent { fill: var(--red); }
-.side-panel .bar-axis > div { margin-right: 48px; }
-.side-panel .bar-track { grid-template-columns: minmax(0, 1fr) 40px; }
+.side-panel .bars { --bar-value: 52px; }
 .donut { width: 155px; display: block; margin: 0 auto 8px; }
 .donut-base, .donut-value { fill: none; stroke-width: 17; }
 .donut-base { stroke: var(--gold); }
@@ -140,6 +139,7 @@ input, select { border: 1px solid var(--rule); padding: 8px 12px; background: va
   nav a { font-size: 11px; }
   .brand { font-size: 24px; }
   .editorial-grid { gap: 20px; }
+  .chapter-grid { grid-template-columns: minmax(0,1fr); }
 }
 @media (max-width: 680px) {
   .wrap { width: calc(100% - 32px); }
@@ -167,11 +167,11 @@ input, select { border: 1px solid var(--rule); padding: 8px 12px; background: va
   .section-head { margin-bottom: 7px; }
   .wide { display: none; }
   .compact { display: block; }
-  .compact .axis { font-size: 10px; }
+  .compact .axis, .compact .peak-label { font-size: 12px; }
   .foot { flex-wrap: wrap; row-gap: 6px; }
   .foot p { order: 3; flex-basis: 100%; }
   th, td { padding: 7px 4px; font-size: 11px; }
-  .bar-row { font-size: 11px; }
+  .bar-row, .bar-axis { font-size: 12px; }
   .bar-axis, .bar-row { grid-template-columns: minmax(72px, 1fr) minmax(0, 3fr); }
   .prose dl { grid-template-columns: minmax(100px, 1fr) minmax(0, 2fr); }
 }
@@ -186,3 +186,28 @@ input, select { border: 1px solid var(--rule); padding: 8px 12px; background: va
 .age-grid { stroke: var(--paper); opacity: .55; }
 .detail-table th, .detail-table td { padding-inline: 5px; }
 .detail-table td { white-space: nowrap; }
+.chapter-findings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  background: var(--wash);
+  border-block: 2px solid var(--ink);
+}
+.chapter-findings p { padding: 10px 16px; }
+.chapter-findings p + p { border-left: 1px solid var(--rule); }
+.chapter-findings strong {
+  display: block;
+  color: var(--red);
+  font: 800 clamp(18px, 2.1vw, 25px)/1.25 var(--serif);
+}
+.chapter-findings span { display: block; margin-top: 3px; font-size: 12px; font-weight: 700; }
+.age-key { margin-bottom: 9px; }
+.age-key > span { color: var(--slate); font-size: 12px; font-weight: 700; }
+.age-key .legend strong { margin-inline-start: 3px; font-size: 16px; }
+.legend .legend-accent strong { color: var(--red); }
+.labor-table td:nth-child(2), .labor-table td:nth-child(3) { font-weight: 700; }
+.labor-table td small { white-space: nowrap; }
+@media (max-width: 400px) {
+  .section-head { flex-wrap: wrap; column-gap: 10px; row-gap: 2px; }
+  .detail-table { font-size: 11px; }
+  .detail-table th, .detail-table td { padding-inline: 3px; }
+}

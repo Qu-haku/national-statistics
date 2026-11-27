@@ -4,7 +4,7 @@ export function line({ points, ticks, unit, label, endpoint, comparison, pins = 
   function draw(compact) {
     const width = compact ? 350 : 750;
     const height = compact ? 236 : 244;
-    const left = compact ? 47 : 54;
+    const left = compact ? 51 : 60;
     const right = width - 23;
     const top = 47;
     const bottom = height - 32;
@@ -33,7 +33,7 @@ export function line({ points, ticks, unit, label, endpoint, comparison, pins = 
       <path class="chart-stroke" d="${path}"/>
       ${coords.slice(0,-1).map(([a,b]) => `<circle class="dot" cx="${a}" cy="${b}" r="3"/>`).join('')}
       ${pins.map(([year, value, text, align], index) => {
-        const labelY = compact && index === 0 ? 40 : 25;
+        const labelY = compact && index === 0 ? 39 : 24;
         return `<path class="peak-guide" d="M${x(year)} ${y(value)} V${labelY + 4}"/>
           <circle class="peak" cx="${x(year)}" cy="${y(value)}" r="4"/>
           <text class="peak-label" x="${x(year)}" y="${labelY}" text-anchor="${align}">${text}</text>`;
@@ -48,7 +48,7 @@ export function line({ points, ticks, unit, label, endpoint, comparison, pins = 
 export function ageComposition(rows, latestAgeShares) {
   function draw(compact) {
     const width = compact ? 350 : 750;
-    const left = 40;
+    const left = compact ? 44 : 52;
     const right = width - 22;
     const top = 14;
     const bottom = 202;
@@ -67,7 +67,7 @@ export function ageComposition(rows, latestAgeShares) {
       }).join('')}
       ${[0, 25, 50, 75, 100].map(tick => `<line class="grid age-grid" x1="${left}" x2="${right}" y1="${y(tick / 100)}" y2="${y(tick / 100)}"/>
         <text class="axis" x="${left - 7}" y="${y(tick / 100) + 4}" text-anchor="end">${tick}%</text>`).join('')}
-      ${rows.map(([year], index) => index === rows.length - 1 || index % (compact ? 4 : 2) === 0
+      ${rows.map(([year], index) => index === rows.length - 1 || (index < rows.length - 2 && index % (compact ? 4 : 2) === 0)
         ? `<text class="axis" x="${x(index)}" y="${bottom + 20}" text-anchor="middle">${year}</text>` : '').join('')}
     </svg>`;
   }

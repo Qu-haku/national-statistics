@@ -63,15 +63,20 @@ document.addEventListener('keydown', event => {
 });
 matchMedia('(max-width: 680px)').addEventListener('change', () => setMenu(false));
 
+function updateIndicators() {
+  const query = document.querySelector('#indicator-search').value;
+  const category = document.querySelector('#indicator-field').value;
+  const {html, count} = views.indicatorRows(query, category);
+  document.querySelector('#indicator-rows').innerHTML = html;
+  document.querySelector('#result-count').textContent = count+'件';
+}
+
 document.addEventListener('input', event => {
   if (event.target.id === 'pref-search') updatePrefectures();
-  if (event.target.id === 'indicator-search') {
-    const {html,count} = views.indicatorRows(event.target.value);
-    document.querySelector('#indicator-rows').innerHTML = html;
-    document.querySelector('#result-count').textContent = count+'件';
-  }
+  if (event.target.id === 'indicator-search') updateIndicators();
 });
 document.addEventListener('change', event => {
+  if (event.target.id === 'indicator-field') updateIndicators();
   if (event.target.matches('#pref-a, #pref-b')) {
     const a = Number(document.querySelector('#pref-a').value);
     const b = Number(document.querySelector('#pref-b').value);
