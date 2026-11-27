@@ -25,7 +25,7 @@ function render(focus = false) {
   setMenu(false);
   ascending = false;
   main.innerHTML = renderers[index]();
-  document.title = sections[index][1]+' ｜ 国勢図鑑';
+  document.title = index === 0 ? 'THE JAPAN ALMANAC' : sections[index][1] + ' | THE JAPAN ALMANAC';
   window.scrollTo(0,0);
   if (focus) main.focus({ preventScroll:true });
   requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -61,14 +61,14 @@ document.addEventListener('keydown', event => {
     menu.focus();
   }
 });
-matchMedia('(max-width: 680px)').addEventListener('change', () => setMenu(false));
+matchMedia('(max-width: 760px)').addEventListener('change', () => setMenu(false));
 
 function updateIndicators() {
   const query = document.querySelector('#indicator-search').value;
   const category = document.querySelector('#indicator-field').value;
   const {html, count} = views.indicatorRows(query, category);
   document.querySelector('#indicator-rows').innerHTML = html;
-  document.querySelector('#result-count').textContent = count+'件';
+  document.querySelector('#result-count').textContent = count + (count === 1 ? ' result' : ' results');
 }
 
 document.addEventListener('input', event => {

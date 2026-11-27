@@ -21,7 +21,7 @@ export function line({ points, ticks, unit, label, endpoint, comparison, pins = 
     const comparisonPath = comparison?.map(([year, value], i) =>
       `${i ? 'L' : 'M'}${x(year)} ${y(value)}`).join(' ');
     return `<svg class="line ${compact ? 'compact' : 'wide'}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${label}">
-      <text x="0" y="17" class="axis">単位：${unit}</text>
+      <text x="0" y="17" class="axis">${unit}</text>
       ${ticks.map(value => `<line class="grid" x1="${left}" x2="${right}" y1="${y(value)}" y2="${y(value)}"/>
         <text class="axis" x="${left - 8}" y="${y(value) + 4}" text-anchor="end">${format(value)}</text>`).join('')}
       ${yearLabels.map(([year]) =>
@@ -59,7 +59,7 @@ export function ageComposition(rows, latestAgeShares) {
       return [0, ages[0] / total, (ages[0] + ages[1]) / total, 1];
     });
     return `<svg class="line ${compact ? 'compact' : 'wide'}" viewBox="0 0 ${width} 234" role="img"
-      aria-label="${rows[0][0]}年から${rows.at(-1)[0]}年の年齢3区分別人口割合。${rows.at(-1)[0]}年は${latestAgeShares}。">
+      aria-label="Population shares by age group, ${rows[0][0]}–${rows.at(-1)[0]}. In ${rows.at(-1)[0]}: ${latestAgeShares}.">
       ${['young', 'working', 'older'].map((band, index) => {
         const upper = bands.map((shares, i) => `${x(i)},${y(shares[index + 1])}`);
         const lower = bands.map((shares, i) => `${x(i)},${y(shares[index])}`).reverse();
@@ -77,7 +77,7 @@ export function ageComposition(rows, latestAgeShares) {
 export function bars(rows, ticks, unit) {
   const max = ticks.at(-1);
   return `<div class="bars">
-    <div class="bar-axis"><span>単位：${unit}</span><div>${ticks.map(tick => `<span>${format(tick)}</span>`).join('')}</div></div>
+    <div class="bar-axis"><span>${unit}</span><div>${ticks.map(tick => `<span>${format(tick)}</span>`).join('')}</div></div>
     ${rows.map(({label,value,display,accent}) => `<div class="bar-row">
       <span>${label}</span><div class="bar-track">
         <svg viewBox="0 0 ${max} 16" preserveAspectRatio="none" aria-hidden="true">
@@ -102,13 +102,13 @@ export function donut(value, display, label) {
 // Use mirrored bars when a series provides both sexes for each age band.
 export function pyramid(rows, ticks, unit) {
   const max = ticks.at(-1);
-  return `<div class="pyramid" aria-label="男女別人口ピラミッド">
-    <p>男性 ／ 女性（${unit}）</p>
+  return `<div class="pyramid" aria-label="Population pyramid by sex">
+    <p>Men / women (${unit})</p>
     <div class="pyramid-axis">${[...ticks.slice(1).reverse(), ...ticks].map(tick => `<span>${format(tick)}</span>`).join('')}</div>
     ${rows.map(({ label, men, women }) => `<div class="pyramid-row">
       <span>${label}</span><svg viewBox="0 0 ${max * 2} 18" preserveAspectRatio="none" aria-hidden="true">
         <rect class="bar-ink" x="${max - men}" width="${men}" height="18"/>
         <rect class="bar-accent" x="${max}" width="${women}" height="18"/>
-      </svg><span>${format(men)} ／ ${format(women)}</span></div>`).join('')}
+      </svg><span>${format(men)} / ${format(women)}</span></div>`).join('')}
   </div>`;
 }
