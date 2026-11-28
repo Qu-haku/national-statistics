@@ -106,6 +106,45 @@ td small { display: block; font-size: 11px; color: var(--slate); }
 input, select { border: 1px solid var(--rule); padding: 8px 12px; background: var(--paper); min-width: min(240px, 100%); font-size: 14px; }
 #sort-prefs { border: 0; background: none; padding: 2px 0; font-weight: 700; }
 #sort-prefs span { color: var(--red); }
+.prefecture-map [data-band="0"] { --tile-fill: color-mix(in oklch, var(--red) 11%, var(--paper)); }
+.prefecture-map [data-band="1"] { --tile-fill: color-mix(in oklch, var(--red) 29%, var(--paper)); }
+.prefecture-map [data-band="2"] { --tile-fill: color-mix(in oklch, var(--red) 47%, var(--paper)); }
+.prefecture-map [data-band="3"] { --tile-fill: var(--red); --tile-ink: white; }
+.prefecture-map [data-band="4"] { --tile-fill: oklch(0.40 0.145 28); --tile-ink: white; }
+.pref-map-key, .pref-map-key ul { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+.pref-map-key { font-size: 12px; }
+.pref-map-key ul { margin: 0; padding: 0; list-style: none; }
+.pref-map-key li { display: flex; align-items: center; gap: 5px; }
+.pref-map-swatch { width: 12px; height: 12px; background: var(--tile-fill); border: 1px solid var(--rule); }
+.pref-map-scroll { overflow-x: auto; margin-block: 8px; }
+.pref-map-grid {
+  display: grid;
+  min-width: 980px;
+  padding: 4px;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  grid-auto-rows: 37px;
+  gap: 4px;
+}
+.pref-tile {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: 0;
+  border: 1px solid color-mix(in oklch, var(--tile-fill) 75%, var(--ink));
+  background: var(--tile-fill);
+  color: var(--tile-ink, var(--ink));
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.pref-tile span { font-size: 10px; }
+.pref-tile:hover, .pref-tile:focus-visible, .pref-tile[aria-pressed="true"] {
+  outline: 2px solid var(--ink);
+  outline-offset: 0;
+  z-index: 1;
+}
+#pref-rows .pref-row-highlight { background: color-mix(in oklch, var(--red) 13%, var(--paper)); }
+#pref-rows .pref-row-highlight > :first-child { box-shadow: inset 3px 0 var(--red); }
 .empty { text-align: center !important; padding: 24px; color: var(--slate); }
 .bars { --bar-label: minmax(100px, 1fr); --bar-value: 140px; display: grid; gap: 0; margin: 10px 0 14px; }
 .bar-axis, .bar-row { display: grid; grid-template-columns: var(--bar-label) minmax(0, 3fr); align-items: center; gap: 12px; }

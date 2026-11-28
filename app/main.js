@@ -35,9 +35,39 @@ function render(focus = false) {
 
 function updatePrefectures() {
   document.querySelector('#pref-rows').innerHTML = views.prefectureRows(document.querySelector('#pref-search').value,ascending);
+  highlightPrefecture();
 }
 
+function highlightPrefecture(tile = main.querySelector('.pref-tile[aria-pressed="true"]')) {
+  const rows = main.querySelectorAll('#pref-rows [data-prefecture]');
+  for (const row of rows) {
+    row.classList.toggle('pref-row-highlight', row.dataset.prefecture === tile?.dataset.prefecture);
+  }
+}
+
+main.addEventListener('pointerover', event => {
+  const tile = event.target.closest('.pref-tile');
+  if (tile) highlightPrefecture(tile);
+});
+main.addEventListener('pointerout', event => {
+  const tile = event.target.closest('.pref-tile');
+  if (tile && !tile.contains(event.relatedTarget)) highlightPrefecture();
+});
+main.addEventListener('focusin', event => {
+  if (event.target.matches('.pref-tile')) highlightPrefecture(event.target);
+});
+main.addEventListener('focusout', event => {
+  if (event.target.matches('.pref-tile')) highlightPrefecture();
+});
+
 document.addEventListener('click', event => {
+  const tile = event.target.closest('.pref-tile');
+  if (tile) {
+    const previous = main.querySelector('.pref-tile[aria-pressed="true"]');
+    previous?.setAttribute('aria-pressed', 'false');
+    if (tile !== previous) tile.setAttribute('aria-pressed', 'true');
+    highlightPrefecture();
+  }
   if (event.target.closest('.menu')) setMenu(mobileNav.hidden);
   if (event.target.closest('#mobile-nav a')) {
     setMenu(false);

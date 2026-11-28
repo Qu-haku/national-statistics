@@ -69,12 +69,59 @@ export function home() {
     </section>`;
 }
 
+// Each row runs west to east. Empty cells separate the islands and coastlines.
+const prefectureGrid = [
+  [13, 'Hokkaido'],
+  [12, 'Aomori'],
+  [11, 'Akita', 'Iwate'],
+  [11, 'Yamagata', 'Miyagi'],
+  [10, 'Niigata', 'Fukushima'],
+  [8, 'Ishikawa', 'Toyama', 'Nagano', 'Gunma', 'Tochigi', 'Ibaraki'],
+  [3, 'Shimane', 'Tottori', 'Hyogo', 'Kyoto', 'Shiga', 'Fukui', 'Gifu', null, 'Saitama'],
+  [2, 'Yamaguchi', 'Hiroshima', 'Okayama', 'Osaka', 'Nara', 'Mie', null, 'Aichi', null, 'Yamanashi', 'Tokyo', 'Chiba'],
+  [1, 'Saga', 'Fukuoka', 'Oita', 'Ehime', 'Kagawa', 'Wakayama', null, null, null, 'Shizuoka', null, 'Kanagawa'],
+  [1, 'Nagasaki', 'Kumamoto', 'Miyazaki', 'Kochi', 'Tokushima'],
+  [2, 'Kagoshima'],
+  [1, 'Okinawa'],
+];
+const populationBands = [
+  [1_000_000, 'Under 1M'],
+  [2_000_000, '1M to <2M'],
+  [5_000_000, '2M to <5M'],
+  [10_000_000, '5M to <10M'],
+  [Infinity, '10M and over'],
+];
+
+function prefectureMap() {
+  const populations = new Map(prefectures);
+  const tiles = prefectureGrid.flatMap(([start, ...names], row) => names.map((name, offset) => {
+    if (!name) return '';
+    const population = populations.get(name);
+    const band = populationBands.findIndex(([limit]) => population < limit);
+    return `<button type="button" class="pref-tile" data-prefecture="${name}" data-band="${band}" aria-pressed="false" aria-controls="pref-rows" style="grid-area:${row + 1}/${start + offset}">
+      <strong>${name}</strong><span>${format(population)}</span>
+    </button>`;
+  })).join('');
+  return `<section class="block prefecture-map" aria-label="Prefectures by population map">
+    ${section('Map 1', 'Prefectures by population (tile grid)', prefectureYear)}
+    <div class="pref-map-key">
+      <strong>Population</strong>
+      <ul aria-label="Population ranges">${populationBands.map(([, label], band) =>
+        `<li><span class="pref-map-swatch" data-band="${band}" aria-hidden="true"></span>${label.replace('<', '&lt;')}</li>`).join('')}</ul>
+    </div>
+    <div class="pref-map-scroll" role="region" aria-label="Japan prefecture tile grid" tabindex="0">
+      <div class="pref-map-grid">${tiles}</div>
+    </div>
+    ${note('Source: Statistics Bureau of Japan, 2020 Population Census.')}
+  </section>`;
+}
+
 export function prefectureRows(query = '', ascending = false) {
   const term = query.normalize('NFKC').trim().toLowerCase();
   const rows = prefectures.map(([name,pop],i) => ({ name, pop, rank:i+1 }))
     .filter(({name}) => name.toLowerCase().includes(term));
   if (ascending) rows.reverse();
-  return rows.length ? rows.map(({name,pop,rank}) => `<tr><td>${rank}</td><th scope="row">${name}</th><td>${format(pop)}</td><td>${prefectureYear}</td></tr>`).join('')
+  return rows.length ? rows.map(({name,pop,rank}) => `<tr data-prefecture="${name}"><td>${rank}</td><th scope="row">${name}</th><td>${format(pop)}</td><td>${prefectureYear}</td></tr>`).join('')
     : '<tr><td colspan="4" class="empty">No matching prefectures. Try part of a prefecture name.</td></tr>';
 }
 
@@ -111,6 +158,7 @@ export function population() {
       </aside>
     </div>
     <section class="block">${section('Table 2','Births and deaths','2024')}${strip(f.births,f.deaths,f.fertility)}</section>
+    ${prefectureMap()}
     <section class="block">${section('Table 3','Prefectures by population','2020 Population Census')}
       <div class="table-controls"><label>Search prefectures <input id="pref-search" type="search" placeholder="e.g. Tokyo" aria-controls="pref-rows"></label></div>
       <table class="numeric"><thead><tr><th scope="col">Rank</th><th scope="col">Prefecture</th><th scope="col" id="population-sort" aria-sort="descending"><button type="button" id="sort-prefs">Population <span>↓</span></button></th><th scope="col">Census year</th></tr></thead>
